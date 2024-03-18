@@ -18,11 +18,40 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+let responseObject = {}
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+//Este get funcionará para los casos en los que se pase un parámetro después del api
+app.get("/api/:date", (req, res) => {
+  //tomo el parametro date pasado en la ruta y lo guardo como String
+  let date = req.params.date;
+
+  // Verificar si el parámetro es un número (posible UNIX timestamp)
+  if (!isNaN(date)) {
+    date = parseInt(date);
+  }
+
+  // Crear una nueva fecha y verificar si es válida
+  let newDate = new Date(date);
+  if (isNaN(newDate.getTime())) {
+    res.json({error: "Invalid Date"});
+    return;
+  }
+
+  // Construir el objeto de respuesta
+  responseObject['unix'] = newDate.getTime();
+  responseObject['utc'] = newDate.toUTCString();
+
+  // Enviar respuesta
+  res.json(responseObject);
 });
+
+//Este get funcionará para los casos en los que no se pase ningún parámetro después del api //test7 and test8
+app.get("/api", (req, res) => {
+  res.json({
+    unix: new Date().getTime(), //retorna el tiempo actual en milisegundos
+    utc: new Date().toUTCString() //retorna la fecha actual convertida en string en formato UTC
+  });
+})
 
 
 
